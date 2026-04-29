@@ -67,44 +67,36 @@ public class BST {
         return current;
     }
 
-    public Node remove(int element) {
+    public int remove(int element) {
         Node node = search(element);
 
         if (node == null) {
             throw new NoSuchElementException("Node " + element + " is not present in the tree");
         }
 
-        Node temp = node;
+        int temp = element;
         
         if (node.numberOfChilds() == 2) {
             Node successor = findSuccessor(node);
             Node successorFather = successor.getFather();
 
             if (successor.isLeftChild()) {
-                successorFather.setLeftChild(null);
+                if (successor.hasRightChild()) {
+                    successor.getRightChild().setFather(successor.getFather());
+                }
+                if (successorFather != null) {
+                    successorFather.setLeftChild(successor.getRightChild());
+                }
             } else if (successor.isRightChild()) {
-                successorFather.setRightChild(null);
+                if (successor.hasRightChild()) {
+                    successor.getRightChild().setFather(successor.getFather());
+                }
+                if (successorFather != null) {
+                    successorFather.setRightChild(successor.getRightChild());
+                }
             }
 
-            if (node.isRoot()) {
-                root = successor;
-            }
-
-            successor.setLeftChild(node.getLeftChild()); 
-            node.getLeftChild().setFather(successor);
-
-            successor.setRightChild(node.getRightChild());
-
-            if (successorFather != node) {
-                node.getRightChild().setFather(successor);
-            }
-
-            successor.setFather(node.getFather());
-            if (node.isLeftChild()) {
-                node.getFather().setLeftChild(successor);
-            } else if (node.isRightChild()) {
-                node.getFather().setRightChild(successor);
-            }
+            node.setElement(successor.getElement());
 
             return temp;
         }
